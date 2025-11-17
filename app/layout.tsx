@@ -45,7 +45,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className="allside"
+        className="allside transition-all duration-700"
+
       >
         <HwProvider>
           <ThemeProvider
@@ -57,7 +58,7 @@ export default function RootLayout({
                         
           >
             <SidebarProvider >
-              <div className="allside">
+              <div className="allside transition-all duration-700">
                 <AppSidebar />
                
                   <div className="flex flex-row w-full pr-[15px] justify-end  mt-[10px] absolute">
