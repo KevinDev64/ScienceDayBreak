@@ -1,2 +1,1 @@
-# ScienceDayBreak
-A3 team on hackathon
+# CertSirius Service for Hackathon
