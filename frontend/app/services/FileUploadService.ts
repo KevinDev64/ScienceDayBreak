@@ -1,10 +1,10 @@
 import http from "../http-common";
 import Cookies from 'js-cookie'
-const upload = (file: File, onUploadProgress: any): Promise<any> => {
+const upload = (file: File, photo : File, onUploadProgress: any): Promise<any> => {
   const formData = new FormData();
 
   formData.append("file", file);
-
+  formData.append("photo", photo);
   return http.post("/recognition/task", formData, {
     headers: {
       "authorization": "Bearer " + Cookies.get('token')!,
