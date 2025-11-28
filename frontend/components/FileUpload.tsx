@@ -8,14 +8,13 @@ import "@/components/loading"
 import { Progress } from "@/components/ui/progress"
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useRouter } from 'next/navigation'
-import { Toaster, toast } from "sonner";
+
 import { useEffect } from "react";
 import Loading from "@/components/loading";
 import Cookies from 'js-cookie'
 import { Card } from "./ui/card";
 import { Checkbox } from "@/components/ui/checkbox"
-import { DropAi } from "./DropAi";
-import { DropMod } from "./DropMod";
+
 import http from "@/app/http-common"
 import { createContext } from "react";
 type discard = {
