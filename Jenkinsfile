@@ -24,34 +24,18 @@ pipeline {
 		}
 
 		stage("Build frontend image (master) & push") {
-			environment { 
-				DOCKER_REGISTRY_CREDS = credentials("DOCKER_REGISTRY")
-			}
 			steps {
-				script {
-					docker.withRegistry("https://registry.kevindev64.ru", "DOCKER_REGISTRY") {
-						def prodImage = docker.build("SDB-frontend:${env.BUILD_ID}-prod", "./frontend")
-						prodImage.push()
-						prodImage.push("latest-prod")
-					}
-				}
+				sh 'cd frontend && docker build -t registry.kevindev64.ru/SDB-frontend:${env.BUILD_ID}-prod -t registry.kevindev64.ru/SDB-frontend:latest-prod .'
+				sh 'docker push'
 			}	
 		}
 
 		stage("Build backend image (master) & push") {
-					environment { 
-						DOCKER_REGISTRY_CREDS = credentials("DOCKER_REGISTRY")
-					}
-					steps {
-						script {
-							docker.withRegistry("https://registry.kevindev64.ru", "DOCKER_REGISTRY") {
-								def prodImage = docker.build("SDB-backend:${env.BUILD_ID}-prod", "./backend")
-								prodImage.push()
-								prodImage.push("latest-prod")
-							}
-						}
-					}	
-				}
+			steps {
+				sh 'cd backend && docker build -t registry.kevindev64.ru/SDB-backend:${env.BUILD_ID}-prod -t registry.kevindev64.ru/SDB-backend:latest-prod .'
+				sh 'docker push'
+			}	
+		}
 
 		stage("Run updater.sh on server...") {
 			steps {
