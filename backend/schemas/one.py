@@ -1,6 +1,4 @@
-# auth/schemas.py
 from pydantic import BaseModel, EmailStr
-
 from database import Role
 
 
@@ -35,3 +33,22 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     user_id: int | None = None
     role: Role | None = None
+
+
+class EventResponse(BaseModel):
+    id: int
+    name: str
+    date_str: str
+
+    class Config:
+        from_attributes = True
+
+
+class EventDetailResponse(EventResponse):
+    # Доп. инфо для детального просмотра, можно добавить статус участника
+    user_role: str | None = None
+    user_place: str | None = None
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str

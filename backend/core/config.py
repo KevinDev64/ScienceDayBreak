@@ -1,4 +1,5 @@
 import logging
+import os
 from logging.config import dictConfig
 from typing import AsyncGenerator
 
@@ -19,6 +20,7 @@ DEBUG: bool = config("DEBUG", cast=bool, default=False)
 SECRET_KEY: Secret = config("SECRET_KEY", cast=Secret, default="your-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS = 30
 
 MEMOIZATION_FLAG: bool = config("MEMOIZATION_FLAG", cast=bool, default=True)
 
@@ -53,6 +55,9 @@ async def async_get_db() -> AsyncGenerator[AsyncSession, None]:
 #     handlers=[InterceptHandler(level=LOGGING_LEVEL)], level=LOGGING_LEVEL
 # )
 # logger.configure(handlers=[{"sink": sys.stderr, "level": LOGGING_LEVEL}])
+
+OUTPUT_DIR = "output"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 dictConfig(logging_config)
 
