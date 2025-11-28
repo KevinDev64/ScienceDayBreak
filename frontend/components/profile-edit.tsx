@@ -14,6 +14,12 @@ import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { InputFile } from "./FileUpload"
 export function Dialogus() {
+    const [currentFile, setCurrentFile] = useState<File>();
+    const selectFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const { files } = event.target;
+      const selectedFiles = files as FileList;
+      setCurrentFile(selectedFiles?.[0]);
+    };
     const [name, setName] = useState<string>("Shadcn");
     const [mail, setMail] = useState<string>("shadcn@test.com");
     return (
@@ -45,7 +51,7 @@ export function Dialogus() {
               <Label htmlFor="avatar" className="text-right">
                 Avatar
               </Label>
-              <InputFile className="grid col-span-3" />
+              <Input type="file" id="picture" accept="image/jpeg,image/png" onChange={selectFile} className="grid col-span-3" />
             </div>
           </div>
           <DialogFooter>
