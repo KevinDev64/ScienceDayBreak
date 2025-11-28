@@ -34,7 +34,6 @@ pipeline {
 		stage("Build backend image (master) & push") {
 			steps {
 				sh "cd backend && docker build -t registry.kevindev64.ru/sdb-backend:${env.BUILD_ID}-prod -t registry.kevindev64.ru/sdb-backend:latest-prod ."
-				sh "docker tag "
 				sh "docker push registry.kevindev64.ru/sdb-backend:${env.BUILD_ID}-prod"
 				sh "docker push registry.kevindev64.ru/sdb-backend:latest-prod"
 			}	
