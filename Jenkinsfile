@@ -6,18 +6,27 @@ pipeline {
 	
 	stages {
 		stage("Cleaning before building") {
+			when {
+				branch "main"
+			}
 			steps {
 				cleanWs()
 			}
 		}
 
 		stage("Checkout SCM") {
+			when {
+				branch "main"
+			}
 			steps {
 				checkout scm
 			}
 		}
 
 		stage("Generate .env file") {
+			when {
+				branch "main"
+			}
 			steps {
 				echo "Skipping generating(bug, issue #13)!"
 			}
@@ -60,10 +69,11 @@ pipeline {
 				}
 
 		stage("Run updater.sh on server...") {
+			when {
+				branch "main"
+			}
 			steps {
-				sshagent(credentials : ['SSH_CERTSIRIUS']) {
-				            sh 'ssh root@certsirius.ru "cd ScienceDayBreak && updater.sh"'
-				}
+				sh 'ssh root@certsirius.ru "cd ScienceDayBreak && ./updater.sh"'
 			}
 		}
 	}
