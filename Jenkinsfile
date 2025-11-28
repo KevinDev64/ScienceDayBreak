@@ -61,9 +61,7 @@ pipeline {
 
 		stage("Run updater.sh on server...") {
 			steps {
-				sshagent(credentials : ['SSH_CERTSIRIUS']) {
-				            sh 'ssh root@certsirius.ru "cd ScienceDayBreak && updater.sh"'
-				}
+				sh 'ssh root@certsirius.ru "cd ScienceDayBreak && ./updater.sh"'
 			}
 		}
 	}
