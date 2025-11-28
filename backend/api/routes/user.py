@@ -3,7 +3,6 @@ import os
 import zipfile
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -16,28 +15,6 @@ from schemas import EventResponse, EventDetailResponse
 
 router = APIRouter(tags=["user"], prefix="/user")
 
-
-class EventCreate(BaseModel):
-    name: str
-    date_str: str
-
-
-# @router.get("/me", response_model=UserResponse)
-# async def get_me(current_user: User = Depends(get_current_user)):
-#     return current_user
-#
-#
-# @router.get("/my-orders")
-# def get_my_orders(user: User = Depends(require_user)):
-#     """Доступно: user, operator, admin"""
-#     return {
-#         "user_id": user.id,
-#         "orders": [
-#             {"id": 1, "status": "pending"},
-#             {"id": 2, "status": "completed"}
-#         ]
-#     }
-#
 
 # 1) Получить все ивенты, где пользователь участвовал
 @router.get("/events", response_model=list[EventResponse])
