@@ -6,36 +6,24 @@ pipeline {
 	
 	stages {
 		stage("Cleaning before building") {
-			when {
-				branch "main"
-			}
 			steps {
 				cleanWs()
 			}
 		}
 
 		stage("Checkout SCM") {
-			when {
-				branch "main"
-			}
 			steps {
 				checkout scm
 			}
 		}
 
 		stage("Generate .env file") {
-			when {
-				branch "main"
-			}
 			steps {
 				echo "Skipping generating(bug, issue #13)!"
 			}
 		}
 
 		stage("Build frontend image (master) & push") {
-			when {
-				branch "main"
-			}
 			environment { 
 				DOCKER_REGISTRY_CREDS = credentials("DOCKER_REGISTRY")
 			}
@@ -51,9 +39,6 @@ pipeline {
 		}
 
 		stage("Build backend image (master) & push") {
-					when {
-						branch "main"
-					}
 					environment { 
 						DOCKER_REGISTRY_CREDS = credentials("DOCKER_REGISTRY")
 					}
@@ -69,9 +54,6 @@ pipeline {
 				}
 
 		stage("Run updater.sh on server...") {
-			when {
-				branch "main"
-			}
 			steps {
 				sh 'ssh root@certsirius.ru "cd ScienceDayBreak && ./updater.sh"'
 			}
