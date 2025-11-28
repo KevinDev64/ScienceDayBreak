@@ -26,16 +26,14 @@ pipeline {
 		stage("Build frontend image (master) & push") {
 			steps {
 				sh "cd frontend && docker build -t registry.kevindev64.ru/sdb-frontend:${env.BUILD_ID}-prod -t registry.kevindev64.ru/sdb-frontend:latest-prod ."
-				sh "docker push sdb-frontend:${env.BUILD_ID}-prod"
-				sh "docker push sdb-frontend:latest-prod"
+				sh "docker push -a"
 			}	
 		}
 
 		stage("Build backend image (master) & push") {
 			steps {
 				sh "cd backend && docker build -t registry.kevindev64.ru/sdb-backend:${env.BUILD_ID}-prod -t registry.kevindev64.ru/sdb-backend:latest-prod ."
-				sh "docker push sdb-backend:${env.BUILD_ID}-prod"
-				sh "docker push sdb-backend:latest-prod"
+				sh "docker push -a"
 			}	
 		}
 
