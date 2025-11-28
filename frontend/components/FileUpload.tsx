@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation'
 
 
 import http from "@/app/http-common"
+import ButT from "./theme-but2";
 
 type discard = {
   disc: boolean
@@ -51,21 +52,30 @@ export function InputFile(props:any) {
       
   };
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-[45vw] gap-[2vh] justify-center">
         <div className="flex flex-row">
-          <div>Название</div>
+          <div className="w-[14vw]">Название</div>
           <Input className="grid col-span-3" onChange={(e) => {setName(e.target.value)}} />
         </div>
         <div className="flex flex-row">
-          <div>Дата</div>
+          <div className="w-[14vw]">Дата</div>
           <Input className="grid col-span-3" onChange={(e) => {setDate(e.target.value)}} />
         </div>
         <div className="flex flex-row">
-          <div>Описание</div>
+          <div className="w-[14vw]">Описание</div>
           <Input className="grid col-span-3" onChange={(e) => {setDate(e.target.value)}} />
         </div>
-        <Input id="picture" accept=".csv, text/csv"  className="grid col-span-3" type="file" onChange={selectFile}/>
-        <Input id="pictur" accept="image/jpeg,image/png" className="grid col-span-3" type="file" onChange={selectPhoto}/>   
+        <div className="flex flex-row">
+          <div className="w-[14vw]">Участники</div>
+          <Input id="picture" accept=".csv, text/csv"  className="grid col-span-3" type="file" onChange={selectFile}/>
+        </div>
+        <div className="flex flex-row">
+          <div className="w-[14vw]">Шапка события</div>
+          <Input id="pictur" accept="image/jpeg,image/png" className="grid col-span-3" type="file" onChange={selectPhoto}/>
+        </div>
+        <div className="flex flex-row items-center justify-center"> <Button className="w-[15vw]"> Отправить</Button></div>
+        
+        
     </div>
           
    
