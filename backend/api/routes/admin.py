@@ -6,7 +6,7 @@ from core.config import async_get_db
 from core.constants import require_admin
 from database import User, Role
 
-router = APIRouter(prefix="/admin", tags=["Авторизация"])
+router = APIRouter(prefix="/admin", tags=["Admin endpoints"])
 
 
 @router.patch("/users/{user_id}/role")

@@ -48,6 +48,22 @@ class User(DeclBase):
     created_date = Column(DateTime, default=datetime.datetime.now)
     is_active = Column(Integer, default=1)
 
+    user_refresh_tokens = relationship("IssuedJWTToken", cascade="all,delete", back_populates="user")
+
+
+class IssuedJWTToken(DeclBase):
+    __tablename__ = "issued_jwt_token"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("user.id"))
+    jti = Column(String)
+    revoked = Column(Boolean, default=False)
+    created_date = Column(DateTime, default=datetime.datetime.now)
+    modificated_date = Column(DateTime, default=datetime.datetime.now)
+
+    user = relationship("User", back_populates="user_refresh_tokens")
+
+
+
 
 async def create_tables(engine: AsyncEngine):
     # DeclBase.metadata.create_all()
