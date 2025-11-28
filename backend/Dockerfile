@@ -1,0 +1,15 @@
+FROM python:3.11-alpine
+
+WORKDIR /app
+
+RUN apk update
+RUN apk upgrade
+
+RUN pip3 install --upgrade pip
+
+COPY requirements.txt /tmp/
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+
+COPY . .
+
+CMD ["/bin/sh", "-c", "python3 main.py"]
