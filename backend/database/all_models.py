@@ -1,4 +1,4 @@
-import datetime
+import datetime  # <--- Добавил, так как использовалось в коде, но не было импортировано
 from enum import Enum
 
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum as SQLEnum, DateTime
@@ -12,8 +12,8 @@ class Event(DeclBase):
     __tablename__ = "events"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    date_str = Column(String)  # Дата выдачи текстом
-    template_html = Column(String)  # Храним HTML код шаблона прямо в БД для простоты
+    date_str = Column(String)
+    template_html = Column(String)
 
 
 class Participant(DeclBase):
@@ -54,7 +54,8 @@ class User(DeclBase):
 class IssuedJWTToken(DeclBase):
     __tablename__ = "issued_jwt_token"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("user.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+
     jti = Column(String)
     revoked = Column(Boolean, default=False)
     created_date = Column(DateTime, default=datetime.datetime.now)
@@ -63,9 +64,6 @@ class IssuedJWTToken(DeclBase):
     user = relationship("User", back_populates="user_refresh_tokens")
 
 
-
-
 async def create_tables(engine: AsyncEngine):
-    # DeclBase.metadata.create_all()
     async with engine.begin() as conn:
         await conn.run_sync(DeclBase.metadata.create_all)
