@@ -60,7 +60,7 @@ async def login(
     payload = {"user_id": user.id, "role": user.role.value}
 
     access_token = create_access_token(payload)
-    refresh_token = create_refresh_token(payload)  # <-- вот он
+    refresh_token = create_refresh_token(payload)
 
     refresh_token_obj = IssuedJWTToken(
         user_id=user.id,

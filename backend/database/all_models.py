@@ -13,6 +13,8 @@ class Event(DeclBase):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     date_str = Column(String)
+    description = Column(String)
+    image_path = Column(String, default=None, nullable=True)
     template_html = Column(String)
 
 
