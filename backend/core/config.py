@@ -26,7 +26,7 @@ MEMOIZATION_FLAG: bool = config("MEMOIZATION_FLAG", cast=bool, default=True)
 
 HOST: str = config("HOST", cast=str, default="localhost")
 PORT: int = config("PORT", cast=int, default=8000)
-PROJECT_NAME: str = config("PROJECT_NAME", default="pregnancy-model")
+PROJECT_NAME: str = config("PROJECT_NAME", default="ScienceDayBreak")
 
 POSTGRES_HOST: str = config("POSTGRES_HOST", cast=str, default="localhost")
 POSTGRES_PORT: int = config("POSTGRES_PORT", cast=int, default=5432)
@@ -47,6 +47,8 @@ security = HTTPBearer()
 async def async_get_db() -> AsyncGenerator[AsyncSession, None]:
     async with sessionmaker() as db:
         yield db
+
+
 
 
 # logging configuration
