@@ -147,7 +147,6 @@ async def download_all_certificates_zip(
         service = CreateZipService(db)
         zip_buffer, filename = await service.get_event_zip(event_id)
 
-        # Используем quote для корректной кодировки кириллицы в имени файла (RFC 5987)
         encoded_filename = quote(filename)
 
         return StreamingResponse(

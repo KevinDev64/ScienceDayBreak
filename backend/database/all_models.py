@@ -1,6 +1,6 @@
 import datetime
 from enum import Enum
-
+from pydantic import ConfigDict
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum as SQLEnum, DateTime
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.orm import declarative_base, relationship
@@ -34,6 +34,7 @@ class Participant(DeclBase):
 
 
 class Role(str, Enum):
+    model_config = ConfigDict(use_enum_values=True)
     USER = "user"
     ADMIN = "admin"
     OPERATOR = "operator"
