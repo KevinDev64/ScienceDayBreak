@@ -14,7 +14,6 @@ from schemas import EventResponse, EventDetailResponse
 router = APIRouter(tags=["user"], prefix="/user")
 
 
-# 1) Получить все ивенты, где пользователь участвовал
 @router.get("/events", response_model=list[EventResponse])
 async def get_my_events(
         current_user: User = Depends(get_current_user),
@@ -24,7 +23,7 @@ async def get_my_events(
     Возвращает список мероприятий, в которых участвовал текущий пользователь.
     Связь ищется по email.
     """
-    # Делаем JOIN: Event -> Participant, фильтруем по email пользователя
+
     stmt = (
         select(Event)
         .join(Participant, Participant.event_id == Event.id)
@@ -35,7 +34,6 @@ async def get_my_events(
     return events
 
 
-# 2) Получить инфу по конкретному хакатону (ивенту)
 @router.get("/events/{event_id}/info", response_model=EventDetailResponse)
 async def get_event_info(
         event_id: int,
@@ -45,14 +43,12 @@ async def get_event_info(
     """
     Возвращает информацию о хакатоне и роль/статус текущего пользователя в нем.
     """
-    # Получаем ивент
     result = await db.execute(select(Event).where(Event.id == event_id))
     event = result.scalar_one_or_none()
 
     if not event:
         raise HTTPException(status_code=404, detail="Мероприятие не найдено")
 
-    # Получаем данные об участии пользователя в этом ивенте
     p_stmt = select(Participant).where(
         Participant.event_id == event_id,
         Participant.email == current_user.email
@@ -61,7 +57,7 @@ async def get_event_info(
     participant = p_result.scalar_one_or_none()
 
     # Формируем ответ
-    response = EventDetailResponse.from_orm(event)
+    response = EventDetailResponse.model_validate(event)
     if participant:
         response.user_role = participant.role
         response.user_place = participant.place

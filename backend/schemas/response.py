@@ -1,7 +1,5 @@
 from typing import Optional
-
-from pydantic import BaseModel
-
+from pydantic import BaseModel, ConfigDict
 from database import Role
 
 
@@ -16,8 +14,7 @@ class ParticipantResponse(BaseModel):
     is_sent: bool
     download_url: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserResponse(BaseModel):
@@ -26,8 +23,7 @@ class UserResponse(BaseModel):
     username: str
     role: Role
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Token(BaseModel):
@@ -41,10 +37,9 @@ class EventResponse(BaseModel):
     name: str
     date_str: str
     description: str
-    image_path: str
+    image_path: str | None = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class EventDetailResponse(EventResponse):

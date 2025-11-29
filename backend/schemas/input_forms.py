@@ -16,7 +16,11 @@ class UserLogin(BaseModel):
 
 
 def validate_file(file: Union[UploadFile, str, None]) -> Optional[UploadFile]:
-    if file is None or file == "" or (isinstance(file, UploadFile) and not file.filename):
+    if file is None:
+        return None
+    if isinstance(file, str) and file == "":
+        return None
+    if isinstance(file, UploadFile) and not file.filename:
         return None
     return file
 
@@ -42,12 +46,12 @@ class EventUpdateForm:
             self,
             name: Optional[str] = Form(None),
             date_str: Optional[str] = Form(None),
-            description: Optional[str] = Form(None),  # Если оно есть в модели
-            image: Optional[UploadFile] = File(None),
-            csv_file: Optional[UploadFile] = File(None)
+            description: Optional[str] = Form(None),
+            image: Union[UploadFile, str, None] = File(None),
+            csv_file: Union[UploadFile, str, None] = File(None)
     ):
         self.name = name
         self.date_str = date_str
         self.description = description
-        self.image = image
-        self.csv_file = csv_file
+        self.image = validate_file(image)
+        self.csv_file = validate_file(csv_file)

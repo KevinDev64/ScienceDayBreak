@@ -1,11 +1,13 @@
+from typing import AsyncGenerator
+
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from core.config import async_get_db
-from database import DeclBase, User  # Импорты ваших моделей
-from main import app  # Импорт вашего FastAPI приложения
+from database import DeclBase
+from main import app
 
 # Используем in-memory SQLite для тестов
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"

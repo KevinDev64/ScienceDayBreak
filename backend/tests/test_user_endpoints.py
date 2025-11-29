@@ -13,8 +13,8 @@ async def test_get_my_events(client, db_session, test_user, auth_headers):
     """Тест 1: Получение списка ивентов пользователя"""
 
     # 1. Создаем ивенты
-    event1 = Event(id=1, name="Hackathon 1")
-    event2 = Event(id=2, name="Hackathon 2")
+    event1 = Event(id=1, name="Hackathon 1", date_str="01.12.2025", description="Hackathon 1", )
+    event2 = Event(id=2, name="Hackathon 2", date_str="01.12.2025", description="Hackathon 1")
     db_session.add_all([event1, event2])
 
     # 2. Добавляем участие пользователя только в event1
@@ -27,21 +27,21 @@ async def test_get_my_events(client, db_session, test_user, auth_headers):
     await db_session.commit()
 
     # 3. Делаем запрос
-    response = await client.get("/user/events", headers=auth_headers)
+    response = await client.get("api/v1/user/events", headers=auth_headers)
 
     # 4. Проверяем
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 1
     assert data[0]["id"] == 1
-    assert data[0]["title"] == "Hackathon 1"
+    assert data[0]["name"] == "Hackathon 1"
 
 
 @pytest.mark.asyncio
 async def test_get_event_info_success(client, db_session, test_user, auth_headers):
     """Тест 2: Получение инфо об ивенте (участник существует)"""
 
-    event = Event(id=10, name="Cool Event")
+    event = Event(id=10, name="Cool Event", date_str="2025-12-01", description="knknkn")
     db_session.add(event)
 
     part = Participant(
@@ -53,11 +53,11 @@ async def test_get_event_info_success(client, db_session, test_user, auth_header
     db_session.add(part)
     await db_session.commit()
 
-    response = await client.get("/user/events/10/info", headers=auth_headers)
+    response = await client.get("api/v1/user/events/10/info", headers=auth_headers)
 
     assert response.status_code == 200
     data = response.json()
-    assert data["title"] == "Cool Event"
+    assert data["name"] == "Cool Event"
     assert data["user_role"] == "Captain"
     assert data["user_place"] == "1st"
 
@@ -66,22 +66,23 @@ async def test_get_event_info_success(client, db_session, test_user, auth_header
 async def test_get_event_info_not_participant(client, db_session, test_user, auth_headers):
     """Тест 2 (кейс 2): Получение инфо, если пользователь НЕ участник"""
 
-    event = Event(id=20, name="Open Event")
+    event = Event(id=20, name="Open Event", date_str="2025-12-01", description="Hackathon 1")
     db_session.add(event)
     await db_session.commit()
 
-    response = await client.get("/user/events/20/info", headers=auth_headers)
+    response = await client.get("api/v1/user/events/20/info", headers=auth_headers)
 
     assert response.status_code == 200
     data = response.json()
-    assert data["title"] == "Open Event"
+    assert data["name"] == "Open Event"
     # Поля роли должны быть пустыми (или None, в зависимости от вашей схемы)
     assert data.get("user_role") is None
 
 
+@pytest.mark.asyncio
 async def test_get_event_info_not_found(client, auth_headers):
     # ...
-    response = await client.get("/user/events/999/info", headers=auth_headers)
+    response = await client.get("api/v1/user/events/999/info", headers=auth_headers)
     assert response.status_code == 404
 
     # 💥 ИСПРАВЛЕНО: ожидаем точное сообщение из вашего роутера
@@ -96,19 +97,19 @@ async def test_download_certificate_success(client, db_session, test_user, auth_
     cert_file = tmp_path / "cert_test.pdf"
     cert_file.write_bytes(b"%PDF-1.4 dummy content")
 
-    event = Event(id=30, name="Cert Event")
+    event = Event(id=30,  date_str="2025-12-01", name="Cert Event", description="Cert Event", )
     db_session.add(event)
 
     part = Participant(
         event_id=30,
         email=test_user.email,
         is_generated=True,
-        file_path=str(cert_file)  # Путь к созданному файлу
+        file_path=str(cert_file)
     )
     db_session.add(part)
     await db_session.commit()
 
-    response = await client.get("/user/events/30/certificate", headers=auth_headers)
+    response = await client.get("api/v1/user/events/30/certificate", headers=auth_headers)
 
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/pdf"
@@ -119,18 +120,18 @@ async def test_download_certificate_success(client, db_session, test_user, auth_
 async def test_download_certificate_not_ready(client, db_session, test_user, auth_headers):
     """Тест 3 (кейс 2): Сертификат не готов"""
 
-    event = Event(id=31)
+    event = Event(id=31,  date_str="2025-12-01", name="Cert Event", description="Cert Event")
     db_session.add(event)
     part = Participant(
         event_id=31,
         email=test_user.email,
-        is_generated=False,  # Не готов
+        is_generated=False,
         file_path=None
     )
     db_session.add(part)
     await db_session.commit()
 
-    response = await client.get("/user/events/31/certificate", headers=auth_headers)
+    response = await client.get("api/v1/user/events/31/certificate", headers=auth_headers)
 
     assert response.status_code == 400
     assert response.json()["detail"] == "Сертификат еще не готов"
@@ -151,7 +152,7 @@ async def test_download_certificate_file_missing(client, db_session, test_user, 
     db_session.add(part)
     await db_session.commit()
 
-    response = await client.get("/user/events/32/certificate", headers=auth_headers)
+    response = await client.get("api/v1/user/events/32/certificate", headers=auth_headers)
 
     assert response.status_code == 500
     assert "не найден на сервере" in response.json()["detail"]
@@ -164,7 +165,7 @@ async def test_download_certificate_not_participant(client, db_session, test_use
     db_session.add(event)
     await db_session.commit()
 
-    response = await client.get("/user/events/33/certificate", headers=auth_headers)
+    response = await client.get("api/v1/user/events/33/certificate", headers=auth_headers)
     assert response.status_code == 404
     assert response.json()["detail"] == "Вы не являетесь участником этого события"
 
@@ -185,7 +186,7 @@ async def test_download_all_certificates_zip(client, auth_headers):
         dummy_zip = io.BytesIO(b"PK\x03\x04 dummy zip content")
         mock_service_instance.get_user_zip = AsyncMock(return_value=(dummy_zip, "certificates.zip"))
 
-        response = await client.get("/user/my-certificates/download-all", headers=auth_headers)
+        response = await client.get("api/v1/user/my-certificates/download-all", headers=auth_headers)
 
         assert response.status_code == 200
         assert response.headers["content-type"] == "application/zip"
@@ -207,7 +208,7 @@ async def test_download_all_certificates_error(client, auth_headers):
         # Имитируем исключение
         mock_service_instance.get_user_zip = AsyncMock(side_effect=Exception("Something went wrong"))
 
-        response = await client.get("/user/my-certificates/download-all", headers=auth_headers)
+        response = await client.get("api/v1/user/my-certificates/download-all", headers=auth_headers)
 
         assert response.status_code == 500
         assert response.json()["detail"] == "Не удалось скачать архив"
