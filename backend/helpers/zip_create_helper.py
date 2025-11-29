@@ -19,7 +19,6 @@ class CreateZipService:
     @staticmethod
     def _sanitize_filename(name: str) -> str:
         """Убирает плохие символы из имени файла"""
-        # Оставляем только буквы, цифры, пробел, тире и подчеркивание
         return "".join([c for c in name if c.isalnum() or c in (' ', '-', '_')]).strip()
 
     def _create_zip_sync(self, participants, event_name: str) -> io.BytesIO:
@@ -29,17 +28,14 @@ class CreateZipService:
         """
         zip_buffer = io.BytesIO()
 
-        # Используем ZIP_DEFLATED для сжатия
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
             files_added = 0
 
             for p in participants:
-                # Проверяем, что путь есть в БД и файл физически существует
                 if p.is_generated and p.file_path and os.path.exists(p.file_path):
                     # Формируем имя файла внутри архива: "Ivan_Ivanov_Student.pdf"
                     safe_name = self._sanitize_filename(p.name)
                     safe_role = self._sanitize_filename(p.role)
-                    # Добавляем ID, чтобы избежать дубликатов имен файлов
                     archive_filename = f"{safe_name}_{safe_role}_{p.id}.pdf"
 
                     # write(путь_на_диске, имя_в_архиве)
@@ -47,7 +43,6 @@ class CreateZipService:
                     files_added += 1
 
         if files_added == 0:
-            # Это исключение будет перехвачено в run_in_threadpool
             raise ValueError("Нет доступных файлов для создания архива")
 
         zip_buffer.seek(0)
@@ -59,8 +54,6 @@ class CreateZipService:
         Возвращает (buffer, filename).
         """
         # 1. Получаем событие и участников
-        # Используем selectinload не обязательно, если нам нужны просто поля Participant,
-        # но нам нужно имя ивента. Проще сделать два запроса или join.
 
         event = await self.db.get(Event, event_id)
         if not event:

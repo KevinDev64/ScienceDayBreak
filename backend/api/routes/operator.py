@@ -31,7 +31,7 @@ def schedule_background_work(event_id: int, background_tasks: BackgroundTasks):
 @router.get("/events", response_model=List[EventResponse])
 async def get_my_created_events(
         db: AsyncSession = Depends(async_get_db),
-        current_user: User = Depends(require_operator)  # Только админ видит созданные им события
+        current_user: User = Depends(require_operator)
 ):
     """
     Получить события, созданные текущим пользователем (только для админа)
