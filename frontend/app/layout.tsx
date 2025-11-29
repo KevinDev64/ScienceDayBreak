@@ -27,9 +27,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   icons: {
-        icon: '/l1.png', 
+        icon: '/favicon.ico', 
   },
-  title: "Career guidance",
+  title: "CertSirius",
   description: "Made by ArtyRy",
 };
 
