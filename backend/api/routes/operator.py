@@ -7,11 +7,14 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import async_get_db, logger
+from core.constants import require_operator
+from database import User
+from helpers import CreateZipService
 from helpers import background_worker_async
 from schemas import EventCreateForm, EventUpdateForm
-from schemas.response import ParticipantResponse
+from schemas.response import ParticipantResponse, EventResponse
 from services import EventService
-from helpers import CreateZipService
+
 
 router = APIRouter(prefix="/operator", tags=["Endpoints for operator"])
 
@@ -25,9 +28,28 @@ def schedule_background_work(event_id: int, background_tasks: BackgroundTasks):
     background_tasks.add_task(background_worker_async, event_id)
 
 
+@router.get("/events", response_model=List[EventResponse])
+async def get_my_created_events(
+        db: AsyncSession = Depends(async_get_db),
+        current_user: User = Depends(require_operator)  # Только админ видит созданные им события
+):
+    """
+    Получить события, созданные текущим пользователем (только для админа)
+    """
+    try:
+        service = EventService(db)
+        events = await service.get_events_by_creator(current_user.id)
+        return events
+
+    except Exception as e:
+        logger.error(f"Error fetching created events: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Ошибка при получении списка событий")
+
+
 @router.post("/event")
 async def create_event(
         background_tasks: BackgroundTasks,
+        current_user: User = Depends(require_operator),
         event_data: EventCreateForm = Depends(),
         db: AsyncSession = Depends(async_get_db),
 ):
@@ -36,6 +58,7 @@ async def create_event(
 
         new_event, participants_count = await service.create_event(
             event_data=event_data,
+            user_id=current_user.id,
             image_file=event_data.image,
             csv_file=event_data.csv_file
         )
@@ -64,12 +87,14 @@ async def update_event(
         event_id: int,
         background_tasks: BackgroundTasks,
         event_data: EventUpdateForm = Depends(),
+        current_user: User = Depends(require_operator),
         db: AsyncSession = Depends(async_get_db)
 ):
     try:
         service = EventService(db)
         event, participants_count = await service.update_event(
             event_id=event_id,
+            user_id=current_user.id,
             event_data=event_data,
             image_file=event_data.image,
             csv_file=event_data.csv_file
@@ -95,6 +120,7 @@ async def update_event(
 async def get_event_participants(
         event_id: int,
         request: Request,
+        current_user: User = Depends(require_operator),
         db: AsyncSession = Depends(async_get_db)
 ):
     try:
@@ -112,6 +138,7 @@ async def upload_participants(
         event_id: int,
         background_tasks: BackgroundTasks,
         file: UploadFile = File(...),
+        current_user: User = Depends(require_operator),
         db: AsyncSession = Depends(async_get_db)):
     """
        Отдельная ручка для дозагрузки CSV
@@ -137,7 +164,7 @@ async def upload_participants(
 @router.get("/event/{event_id}/download-all")
 async def download_all_certificates_zip(
         event_id: int,
-        # Если нужно ограничить доступ только для создателя или админа, добавьте current_user сюда
+        current_user: User = Depends(require_operator),
         db: AsyncSession = Depends(async_get_db)
 ):
     """

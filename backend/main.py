@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.routes.api import router as api_router
 from core.config import API_PREFIX, DEBUG, PROJECT_NAME, VERSION, MEMOIZATION_FLAG, HOST, PORT
 from core.events import create_start_app_handler
-from middleware import LoggingMiddleware
+from middleware import LoggingMiddleware, SecurityMiddleware
 
 # origins = [
 #     "http://localhost:5173"
@@ -21,6 +21,7 @@ def get_application() -> FastAPI:
     application = FastAPI(title=PROJECT_NAME, debug=DEBUG, version=VERSION)
     application.include_router(api_router, prefix=API_PREFIX)
     application.add_middleware(LoggingMiddleware)
+    # application.add_middleware(SecurityMiddleware)
     application.add_middleware(
         CORSMiddleware,
         allow_origins=origins,

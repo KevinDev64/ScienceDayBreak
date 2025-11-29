@@ -8,7 +8,7 @@ from database.seeder import run_seeder
 
 
 async def preload_model():
-    # await create_tables(engine)
+    await create_tables(engine)
     async with sessionmaker() as session:
         await run_seeder(session)
     """

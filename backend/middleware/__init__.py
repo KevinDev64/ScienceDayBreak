@@ -1,1 +1,2 @@
 from .logging_middleware import LoggingMiddleware
+from .security_middleware import SecurityMiddleware
