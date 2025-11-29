@@ -5,6 +5,8 @@ WORKDIR /app
 RUN apk update
 RUN apk upgrade
 
+RUN apk add weasyprint
+
 RUN pip3 install --upgrade pip
 
 COPY requirements.txt /tmp/
