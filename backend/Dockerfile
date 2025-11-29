@@ -14,6 +14,8 @@ RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 COPY . .
 
+RUN python3 -m pytest tests/
+
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh
 
