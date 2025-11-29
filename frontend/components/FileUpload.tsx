@@ -13,12 +13,8 @@ import { useRouter } from 'next/navigation'
 
 import http from "@/app/http-common"
 import ButT from "./theme-but2";
+import { SheetDescription } from "./ui/sheet";
 
-type discard = {
-  disc: boolean
-  setDisc: React.Dispatch<React.SetStateAction<boolean>>
-    
-}
 
 
 export function InputFile(props:any) {
@@ -26,9 +22,9 @@ export function InputFile(props:any) {
   const router = useRouter()
   const [currentFile, setCurrentFile] = useState<File>();
   const [photo, setCurrentPhoto] = useState<File>();
-  const [name, setName] = useState<string>("");
-  const [descrip, setDiccription] = useState<string>("");
-  const [date, setDate] = useState<string>("");
+  const [name, setName] = useState<string>(props.name);
+  const [descrip, setDiscription] = useState<string>(props.descrip);
+  const [date, setDate] = useState<string>(props.date);
   const [progress, setProgress] = useState<number>(0);
   const selectFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = event.target;
@@ -41,12 +37,12 @@ export function InputFile(props:any) {
     setCurrentPhoto(selectedFiles?.[0]);
   };
   
-
   const upload = () => {
     setProgress(0);
+    console.log(currentFile, photo);
     if (!currentFile || !photo) return;
 
-    UploadService.upload(currentFile, photo, (event: any) => {
+    UploadService.upload(currentFile, photo, name, date, descrip, (event: any) => {
       setProgress(Math.round((100 * event.loaded) / event.total));
     })
       
@@ -55,15 +51,15 @@ export function InputFile(props:any) {
     <div className="flex flex-col w-[45vw] gap-[2vh] justify-center">
         <div className="flex flex-row">
           <div className="w-[14vw]">Название</div>
-          <Input className="grid col-span-3" onChange={(e) => {setName(e.target.value)}} />
+          <Input className="grid col-span-3" value={name} onChange={(e) => {setName(e.target.value)}} />
         </div>
         <div className="flex flex-row">
           <div className="w-[14vw]">Дата</div>
-          <Input className="grid col-span-3" onChange={(e) => {setDate(e.target.value)}} />
+          <Input className="grid col-span-3" value={date} onChange={(e) => {setDate(e.target.value)}} />
         </div>
         <div className="flex flex-row">
           <div className="w-[14vw]">Описание</div>
-          <Input className="grid col-span-3" onChange={(e) => {setDate(e.target.value)}} />
+          <Input className="grid col-span-3" value={descrip} onChange={(e) => {setDiscription(e.target.value)}} />
         </div>
         <div className="flex flex-row">
           <div className="w-[14vw]">Участники</div>
@@ -73,7 +69,7 @@ export function InputFile(props:any) {
           <div className="w-[14vw]">Шапка события</div>
           <Input id="pictur" accept="image/jpeg,image/png" className="grid col-span-3" type="file" onChange={selectPhoto}/>
         </div>
-        <div className="flex flex-row items-center justify-center"> <Button className="w-[15vw]"> Отправить</Button></div>
+        <div className="flex flex-row items-center justify-center"> <Button className="w-[15vw]" onClick={upload}> Отправить</Button></div>
         
         
     </div>

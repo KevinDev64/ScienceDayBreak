@@ -30,28 +30,13 @@ const login: React.FC = () => {
   const router = useRouter();
   useEffect(() => {
     toast("Authorize please");
+
   },[])
   useEffect(() => {
     site.setCan(false);
     site.setOpen(false);
     if (Cookies.get('token') == null) return //localStorage.getItem("token")
-    http.get("/auth/validation/", {
-      headers: {
-        "authorization": "Bearer " + Cookies.get('token')!//localStorage.getItem("token")!
-        // "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NDUyMzI0MDN9.QbYdjCSYrEqLyhdiath0FrbWLsmCOBZpMf-HbeFvpxk",
-      },
-    })
-    .then(response => {
-      if (response.data.status == "User exists!"){
-        router.push('/hw-preview')
-        site.setCan(true)
-        setTimeout(() => {site.setOpen(true)}, 1000)
-  
-      }
-    })
-    .catch((err) => {
-      router.replace('/#')
-    });
+    
   },[])
   return (
     <div className="flex flex-col grow-1">
