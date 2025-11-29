@@ -1,16 +1,14 @@
-import io
 import os
-import zipfile
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 from starlette.responses import FileResponse, StreamingResponse
 
-from core.config import async_get_db
+from core.config import async_get_db, logger
 from database import Event, Participant, User
-from helpers import get_current_user
+from helpers import get_current_user, CreateZipService
 from schemas import EventResponse, EventDetailResponse
 
 router = APIRouter(tags=["user"], prefix="/user")
@@ -112,50 +110,25 @@ async def download_all_certificates_zip(
         db: AsyncSession = Depends(async_get_db)
 ):
     """
-    Собирает все готовые сертификаты пользователя в один ZIP архив.
+    Скачать все сертификаты события одним ZIP-архивом.
     """
-    # Находим всех участников с этим email, у которых есть готовые файлы
-    stmt = (
-        select(Participant)
-        .join(Event, Participant.event_id == Event.id)  # Джойн нужен, чтобы получить имя ивента для названия файла
-        .where(
-            Participant.email == current_user.email,
-            Participant.is_generated == True,
-            Participant.file_path.isnot(None)
+    try:
+        service = CreateZipService(db)
+        zip_buffer, filename = await service.get_user_zip(current_user)
+
+        # Используем quote для корректной кодировки кириллицы в имени файла (RFC 5987)
+        encoded_filename = quote(filename)
+
+        return StreamingResponse(
+            zip_buffer,
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": f"attachment; filename*=utf-8''{encoded_filename}"
+            }
         )
-    )
-    # Чтобы получить доступ к полям Event внутри цикла, лучше сразу подгрузить
-    stmt = stmt.options(selectinload(Participant.event))
 
-    result = await db.execute(stmt)
-    participants = result.scalars().all()
-
-    if not participants:
-        raise HTTPException(status_code=404, detail="Нет готовых сертификатов для скачивания")
-
-    # Создаем ZIP в памяти
-    zip_buffer = io.BytesIO()
-
-    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-        files_added = 0
-        for p in participants:
-            if p.file_path and os.path.exists(p.file_path):
-                # Формируем красивое имя файла внутри архива: EventName_Role.pdf
-                # Очистка имени от недопустимых символов для файловой системы
-                safe_event_name = "".join([c for c in p.event.name if c.isalnum() or c in (' ', '-', '_')]).strip()
-                archive_filename = f"{safe_event_name}_{p.role}.pdf"
-
-                zip_file.write(p.file_path, arcname=archive_filename)
-                files_added += 1
-
-    if files_added == 0:
-        raise HTTPException(status_code=500, detail="Файлы сертификатов отсутствуют на диске")
-
-    # Возвращаем указатель в начало потока
-    zip_buffer.seek(0)
-
-    return StreamingResponse(
-        zip_buffer,
-        media_type="application/zip",
-        headers={"Content-Disposition": "attachment; filename=my_certificates.zip"}
-    )
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error downloading zip for event {current_user.username}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Не удалось скачать архив")

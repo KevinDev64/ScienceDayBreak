@@ -34,11 +34,16 @@ POSTGRES_USER: str = config("POSTGRES_USER", cast=str, default="postgres")
 POSTGRES_PASSWORD: str = config("POSTGRES_PASSWORD", cast=str, default="<PASSWORD>")
 POSTGRES_DB: str = config("POSTGRES_DATABASE", cast=str, default="postgres")
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+SMTP_HOST = config("SMTP_HOST", default="smtp.gmail.com")
+SMTP_PORT = config("SMTP_PORT", default=587, cast=int)
+SMTP_USER = config("SMTP_USER", cast=str, default="<EMAIL>")
+SMTP_PASSWORD = config("SMTP_PASSWORD", cast=str, default="<PASSWORD>")
+SMTP_FROM_NAME = config("SMTP_FROM_NAME", default="Event Service")
 
-engine = create_async_engine(
-    get_db_path(POSTGRES_USER, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB,
-                POSTGRES_PASSWORD))
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+PATH_DB = get_db_path(POSTGRES_USER, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB,
+                      POSTGRES_PASSWORD)
+engine = create_async_engine(PATH_DB)
 sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
 
 security = HTTPBearer()
@@ -60,6 +65,9 @@ async def async_get_db() -> AsyncGenerator[AsyncSession, None]:
 
 OUTPUT_DIR = "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+LOGS_DIR = "logs"
+os.makedirs(LOGS_DIR, exist_ok=True)
 
 dictConfig(logging_config)
 

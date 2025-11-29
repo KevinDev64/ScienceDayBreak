@@ -1,4 +1,4 @@
-import datetime  # <--- Добавил, так как использовалось в коде, но не было импортировано
+import datetime
 from enum import Enum
 
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum as SQLEnum, DateTime

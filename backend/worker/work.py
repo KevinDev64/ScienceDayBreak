@@ -66,10 +66,10 @@ async def generate_certificate_pdf(participant, event):
 #         return None
 #
 #
-# async def send_email_mock(email: str, file_path: str):
-#     """
-#     Имитация отправки email.
-#     В реальности здесь будет код smtplib.
-#     """
-#     print(f"--- EMAIL SENT TO {email} with attachment {file_path} ---")
-#     return True
+async def send_email_mock(email: str, file_path: str):
+    """
+    Имитация отправки email.
+    В реальности здесь будет код smtplib.
+    """
+    print(f"--- EMAIL SENT TO {email} with attachment {file_path} ---")
+    return True
