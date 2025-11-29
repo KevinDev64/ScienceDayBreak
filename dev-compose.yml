@@ -1,6 +1,6 @@
 services:
     frontend:
-      image: registry.kevindev64.ru/sdb-frontend:latest-prod
+      build: ./frontend
       container_name: frontend
       ports:
         - "8080:3000"
@@ -11,7 +11,7 @@ services:
       restart: always
 
     backend:
-      image: registry.kevindev64.ru/sdb-backend:latest-prod
+      build: ./backend
       container_name: backend
       environment:
         - POSTGRES_USER=postgres

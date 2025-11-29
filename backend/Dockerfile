@@ -2,10 +2,10 @@ FROM python:3.11-alpine
 
 WORKDIR /app
 
-COPY .env .
-
 RUN apk update
 RUN apk upgrade
+
+RUN apk add weasyprint
 
 RUN pip3 install --upgrade pip
 
