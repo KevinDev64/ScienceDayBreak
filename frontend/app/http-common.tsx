@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export default axios.create({
-  baseURL: "http://localhost:8090/",
+  baseURL: "https://api.certsirius.ru/api/v1/",
   headers: {
     "Content-type": "application/json",
   },

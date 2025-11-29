@@ -44,20 +44,24 @@ export function LoginForm({
     http.post("/auth/login", {email: email_log, password: password_log})
         .then(response => {
           if (response.data){
-            console.log(response.data.id)
+            console.log(response.data)
             toast("successful login")
-            router.push("/hw-preview")
+            router.push("/")
             site.setCan(true)
+            Cookies.set('token', response.data.access_token, { expires: 7 })
+            Cookies.set('role', response.data.user.role, { expires: 7 })
+            Cookies.set('usname', response.data.user.username, { expires: 7 })
+            Cookies.set('email', response.data.user.email, { expires: 7 })
             setTimeout(() => {site.setOpen(true)}, 1000)
             //localStorage.setItem('token', response.data.access_token)<img src={"@/public/0017"} alt="loading..." />
-            Cookies.set('token', response.data.access_token, { expires: 7 })
+            
           }
         })
         .catch((err) => {
           console.log(err);
           if (err.response.data.detail == "User not correct password"){
             toast("incorrect an email or a password")
-            router.replace('/#');
+     
           }
         });
   }

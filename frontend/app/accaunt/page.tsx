@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import Cookies from "js-cookie"
 import { Dialogus } from "@/components/profile-edit"
 export default function LoginPage() {
   return (
@@ -25,7 +26,7 @@ export default function LoginPage() {
               Name
             </div>
             <div className="bod">
-              Shadcn
+              {Cookies.get("usname") == undefined ? "shadcn" : Cookies.get("usname")}
             </div>
           </div>
           <div className="infarea ">
@@ -33,7 +34,7 @@ export default function LoginPage() {
               E-mail
             </div>
             <div className="bod">
-              shadcn@test.com
+              {Cookies.get("email") == undefined ? "ex@mail.ru" : Cookies.get("email")}
             </div>
           </div>
         
@@ -50,7 +51,7 @@ export default function LoginPage() {
               Status
             </div>
             <div className="bod">
-              Developer
+              {Cookies.get("role") == undefined ? "role" : Cookies.get("role")}
             </div>
           </div>
         

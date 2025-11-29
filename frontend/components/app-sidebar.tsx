@@ -42,7 +42,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 import {AvatarDemo} from "@/components/Ava"
-
+import http from "@/app/http-common"
 import { useContext, useEffect, useState} from "react"
 import Image from "next/image"
 import { handleClientScriptLoad } from "next/script"
@@ -57,58 +57,45 @@ const items = [
     icon: ClipboardList,
   },
 ]
-const homeworks = [
-  {
-    title: "Hw 1",
-    url: "#",
-    icon: ClipboardList,
-  },
-  {
-    title: "Hw 2",
-    url: "#",
-    icon: ClipboardList,
-  },
-  {
-    title: "Hw 3",
-    url: "#",
-    icon: ClipboardList,
-  },
-  {
-    title: "Hw 4",
-    url: "#",
-    icon: ClipboardList,
-  },
-  {
-    title: "Hw 5",
-    url: "#",
-    icon: ClipboardList,
-  },
-  {
-    title: "Hw 6",
-    url: "#",
-    icon: ClipboardList,
-  },
-  {
-    title: "Hw 7",
-    url: "#",
-    icon: ClipboardList,
-  },
-  {
-    title: "Hw 8",
-    url: "#",
-    icon: ClipboardList,
-  },
-]
+
 export function AppSidebar() {
   const site = useSidebar();
   const home = useHw();
   const [isClient, setClient] = useState(false);
   const [open, setOpen] = useState(false)
+  const [role, setRole] = useState('admin');
   const router = useRouter()
+  const [exlist, setExlist] = useState([{name: "Digital marketing workshop", id: 0},{name: "Course state", id: 1},{name: "Math olimpiad", id: 2},{name: "Cybersecurity ctf", id: 3},]);
   useEffect(()=>{setClient(true)},[])
+  useEffect(()=>{
+      http.get("/user/events", {
+        headers: {
+          "authorization": "Bearer " + Cookies.get('token')!//localStorage.getItem("token")!
+          // "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NDUyMzI0MDN9.QbYdjCSYrEqLyhdiath0FrbWLsmCOBZpMf-HbeFvpxk",
+        },
+      })
+      .then(response => {
+        if (response.data.size > 0){
+          setExlist(response.data);
+        console.log(response.data);
+        }
+        
+      })
+      // .catch((err) => {
+      //   router.replace('/login')
+      // });
+      if (Cookies.get('role')){
+        
+        console.log(typeof(Cookies.get('role')))
+        console.log(role)
+      }
+      
+      console.log("Cookies",Cookies.get('role'));
+      console.log(role == 'admin')
+  },[])
   return (
 
-      <Sidebar side="left">
+      (isClient && <Sidebar side="left">
         <SidebarSeparator />
         
         <SidebarContent>
@@ -122,14 +109,33 @@ export function AppSidebar() {
               <SidebarMenu>
               <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <a href={"/event"}>
+                {Cookies.get('role') == 'admin' && <a href={"/event"}>
                     <Home />
                     <span>{"Create event"}</span>
-                </a>
+                </a>}
+                
+                
               </SidebarMenuButton>
                 <SidebarMenuSub>
                   
-                  
+                  {exlist.map((ex:any, index) => (
+                    <SidebarMenuSubItem key={index}>
+                      <SidebarMenuSubButton className="hover:cursor-pointer" asChild>
+                        <a  onClick={()=>{
+                          
+                        
+                          router.replace("/ev?id=" + ex.id.toString())
+                          window.location.reload()
+    
+                          
+                          }}>
+                          
+                          <ClipboardList/>
+                          <span >{ex.name}</span>
+                        </a>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  ))}
                 </SidebarMenuSub>
               </SidebarMenuItem>
               </SidebarMenu>
@@ -149,10 +155,10 @@ export function AppSidebar() {
                           <AvatarDemo size="size-10"/>
                           <div>
                             <div className="header">
-                              shadcn
+                              {Cookies.get("usname") == undefined ? "shadcn" : Cookies.get("usname")}
                             </div>
                             <div>
-                              shadcn@test.com
+                              {Cookies.get("email") == undefined ? "ex@mail.ru" : Cookies.get("email")}
                             </div>
                           </div>
                         </div>
@@ -193,7 +199,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarFooter>
-      </Sidebar>
+      </Sidebar>)
  
     
   )
