@@ -18,7 +18,7 @@ def execute_com(command):
 result_codes = []
 commands = [
 	"git fetch",
-	"git pull",
+	"git pull origin main",
 	"docker compose pull",
 	"docker compose down",
 	"docker compose up -d"
