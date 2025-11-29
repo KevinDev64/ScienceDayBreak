@@ -33,20 +33,21 @@ class UserResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    user: UserResponse  # Добавляем пользователя
+    user: UserResponse
 
 
 class EventResponse(BaseModel):
     id: int
     name: str
     date_str: str
+    description: str
+    image_path: str
 
     class Config:
         from_attributes = True
 
 
 class EventDetailResponse(EventResponse):
-    # Доп. инфо для детального просмотра, можно добавить статус участника
     user_role: str | None = None
     user_place: str | None = None
 
