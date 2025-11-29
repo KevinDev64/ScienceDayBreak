@@ -4,7 +4,7 @@ import os
 import subprocess
 
 def execute_com(command):
-	if command == "git pull":
+	if command == "git pull origin main":
 		result = subprocess.check_output(command, shell=True)
 		if result == b'Already up to date.\n':
 			print("Updater! -> NO UPDATES!")
