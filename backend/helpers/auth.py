@@ -1,4 +1,3 @@
-# auth/security.py
 from datetime import datetime, timedelta
 
 import jwt

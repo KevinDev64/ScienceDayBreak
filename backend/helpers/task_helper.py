@@ -1,8 +1,11 @@
 import os
+
 from sqlalchemy import select
+
 import worker
 from core.config import async_get_db, OUTPUT_DIR
 from database import Event, Participant
+from mail.service import send_email_real
 
 
 async def background_worker_async(event_id: int):
@@ -31,7 +34,12 @@ async def background_worker_async(event_id: int):
                     p.file_path = path
                     p.is_generated = True
 
-                    # 2. Отправка
+                    # sent = await send_email_real(p.email,
+                    #                              p.file_path,
+                    #                              event.name,
+                    #                              event.description,
+                    #                              event.date_str)
+                    # # 2. Отправка
                     sent = await worker.send_email_mock(p.email, path)
                     if sent:
                         p.is_sent = True
