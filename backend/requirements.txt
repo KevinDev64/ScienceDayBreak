@@ -7,7 +7,7 @@ annotated-types==0.7.0
 anyio==4.11.0
 async-timeout==5.0.1
 asyncpg==0.31.0
-backports.asyncio.runner==1.2.0
+backports.asyncio.runner
 bcrypt==4.0.1
 brotli==1.2.0
 certifi==2025.11.12
@@ -36,7 +36,6 @@ passlib==1.7.4
 pdfkit==1.0.0
 pillow==12.0.0
 pluggy==1.6.0
-psycopg2==2.9.11
 pycparser==2.23
 pydantic==2.12.5
 pydantic_core==2.41.5
