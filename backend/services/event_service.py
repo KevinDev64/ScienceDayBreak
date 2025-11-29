@@ -2,6 +2,7 @@ import io
 import math
 import os
 import uuid
+from typing import List
 
 import aiofiles
 import pandas as pd
@@ -10,7 +11,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import logger
-from core.templates import default_template
 from database import Event, Participant
 
 
@@ -23,7 +23,6 @@ class EventService:
         """Безопасное преобразование в строку с проверкой на NaN для float"""
         if value is None:
             return ''
-        # Исправленный баг: math.isnan падает на строках
         if isinstance(value, float) and math.isnan(value):
             return ''
         return str(value).strip()
@@ -36,7 +35,6 @@ class EventService:
         try:
             os.makedirs("data", exist_ok=True)
 
-            # Безопасное получение расширения
             filename_orig = file.filename or "image.png"
             extension = os.path.splitext(filename_orig)[1]
             if not extension:
@@ -50,7 +48,6 @@ class EventService:
                     await out_file.write(content)
 
             logger.info(f"📸 Картинка сохранена: {file_path}")
-            # Возвращаем путь с прямыми слешами для унификации в БД
             return file_path.replace("\\", "/")
 
         except Exception as e:
@@ -88,15 +85,28 @@ class EventService:
         await self.db.commit()
         return count
 
-    async def create_event(self, event_data, image_file: UploadFile | None, csv_file: UploadFile | None):
+    async def get_events_by_creator(self, user_id: int) -> List[Event]:
+        """
+        Получение всех событий, созданных пользователем
+        """
+        stmt = (
+            select(Event)
+            .where(Event.user_id == user_id)
+            .order_by(Event.created_date.desc())
+        )
+        result = await self.db.execute(stmt)
+        return result.scalars().all()
+
+    async def create_event(self, event_data, user_id: int, image_file: UploadFile | None, csv_file: UploadFile | None):
         image_path = await self.save_image(image_file)
 
         new_event = Event(
             name=event_data.name,
             date_str=event_data.date_str,
-            template_html=default_template,
+            template_html=1,
             description=event_data.description,
             image_path=image_path,
+            user_id=user_id
         )
 
         self.db.add(new_event)
@@ -111,15 +121,13 @@ class EventService:
 
         return new_event, uploaded_count
 
-    async def update_event(self, event_id: int, event_data, image_file: UploadFile | None, csv_file: UploadFile | None):
-        query = select(Event).where(Event.id == event_id)
-        result = await self.db.execute(query)
-        event = result.scalar_one_or_none()
+    async def update_event(self, event_id: int, user_id: int, event_data, image_file: UploadFile | None,
+                           csv_file: UploadFile | None):
+        event = await self._get_event_or_404(event_id)
 
-        if not event:
-            raise HTTPException(status_code=404, detail="Событие не найдено")
+        if event.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Нет прав на редактирование этого события")
 
-        # Обновляем поля
         if event_data.name is not None: event.name = event_data.name
         if event_data.date_str is not None: event.date_str = event_data.date_str
         if event_data.description is not None: event.description = event_data.description
@@ -137,6 +145,14 @@ class EventService:
 
         return event, uploaded_count
 
+    async def _get_event_or_404(self, event_id: int) -> Event:
+        stmt = select(Event).where(Event.id == event_id)
+        result = await self.db.execute(stmt)
+        event = result.scalar_one_or_none()
+        if not event:
+            raise HTTPException(status_code=404, detail="Событие не найдено")
+        return event
+
     async def get_participants_with_links(self, event_id: int, request: Request):
         query = select(Participant).where(Participant.event_id == event_id)
         result = await self.db.execute(query)
@@ -146,7 +162,6 @@ class EventService:
         for p in participants:
             download_link = None
             if p.is_generated and p.file_path:
-                # Убираем начальные слеши и создаем валидный URL
                 clean_path = p.file_path.replace("\\", "/").lstrip("/")
                 download_link = str(request.base_url.replace(path=f"static/{clean_path}"))
 

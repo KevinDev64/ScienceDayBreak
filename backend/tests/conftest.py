@@ -75,3 +75,4 @@ async def auth_headers(client, test_user):
     from helpers import get_current_user
     app.dependency_overrides[get_current_user] = lambda: test_user
     return {}  # Заголовки пустые, т.к. мы подменили зависимость
+

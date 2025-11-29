@@ -1,5 +1,6 @@
 import datetime
 from enum import Enum
+
 from pydantic import ConfigDict
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum as SQLEnum, DateTime
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -11,11 +12,14 @@ DeclBase = declarative_base()
 class Event(DeclBase):
     __tablename__ = "events"
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
     name = Column(String, index=True)
     date_str = Column(String)
     description = Column(String)
     image_path = Column(String, default=None, nullable=True)
-    template_html = Column(String)
+    template_html = Column(Integer)
+    created_date = Column(DateTime, default=datetime.datetime.now)
+    user_ev = relationship("User", back_populates="user_event")
 
 
 class Participant(DeclBase):
@@ -52,6 +56,7 @@ class User(DeclBase):
     is_active = Column(Integer, default=1)
 
     user_refresh_tokens = relationship("IssuedJWTToken", cascade="all,delete", back_populates="user")
+    user_event = relationship("Event", cascade="all,delete", back_populates="user_ev")
 
 
 class IssuedJWTToken(DeclBase):

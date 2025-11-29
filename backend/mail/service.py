@@ -18,25 +18,22 @@ async def send_email_real(
         event_date: str = None
 ):
     """
-    Настоящая отправка email с HTML шаблоном.
+    Отправка email с HTML шаблоном.
     """
     try:
-        # Проверяем существование файла
+
         if not os.path.exists(file_path):
             logger.log(f"❌ Файл не найден: {file_path}")
             return False
 
-        # Информация о файле
         file_name = os.path.basename(file_path)
-        file_size = round(os.path.getsize(file_path) / 1024, 1)  # KB
+        file_size = round(os.path.getsize(file_path) / 1024, 1)
         file_extension = file_name.split('.')[-1].upper()
 
-        # Загружаем HTML шаблон
         template_path = Path("templates/email_template.html")
         with open(template_path, "r", encoding="utf-8") as f:
             template_content = f.read()
 
-        # Рендерим шаблон
         template = Template(template_content)
         html_content = template.render(
             event_title=event_title,
@@ -47,13 +44,11 @@ async def send_email_real(
             file_type=file_extension
         )
 
-        # Создаем сообщение
         message = MIMEMultipart("alternative")
         message["From"] = f"{SMTP_FROM_NAME} <{SMTP_USER}>"
         message["To"] = email
         message["Subject"] = event_title or "Новое событие"
 
-        # Текстовая версия (fallback)
         text_content = f"""
 Новое событие!
 
@@ -65,11 +60,9 @@ async def send_email_real(
 Это письмо было отправлено автоматически.
         """
 
-        # Прикрепляем HTML и текст
         message.attach(MIMEText(text_content, "plain"))
         message.attach(MIMEText(html_content, "html"))
 
-        # Прикрепляем файл
         with open(file_path, "rb") as attachment:
             part = MIMEBase("application", "octet-stream")
             part.set_payload(attachment.read())
@@ -81,7 +74,6 @@ async def send_email_real(
         )
         message.attach(part)
 
-        # Отправляем письмо
         logger.log(f"🔄 Отправка email на {email}...")
 
         async with aiosmtplib.SMTP(hostname=SMTP_HOST, port=SMTP_PORT) as smtp:

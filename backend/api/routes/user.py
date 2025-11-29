@@ -56,7 +56,6 @@ async def get_event_info(
     p_result = await db.execute(p_stmt)
     participant = p_result.scalar_one_or_none()
 
-    # Формируем ответ
     response = EventDetailResponse.model_validate(event)
     if participant:
         response.user_role = participant.role
@@ -64,8 +63,6 @@ async def get_event_info(
 
     return response
 
-
-# 3) Получить сертификат по конкретному эвенту
 @router.get("/events/{event_id}/certificate")
 async def download_event_certificate(
         event_id: int,

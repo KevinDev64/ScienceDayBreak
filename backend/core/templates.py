@@ -1,3 +1,4 @@
+
 default_template = """
     <html>
     <body style="border: 10px solid #333; padding: 20px; text-align: center;">
@@ -10,3 +11,5 @@ default_template = """
     </body>
     </html>
     """
+
+templates = {1: default_template}
